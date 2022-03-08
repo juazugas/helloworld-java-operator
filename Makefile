@@ -1,6 +1,7 @@
 
 # Image URL to use all building/pushing image targets
 IMG ?= controller:latest
+NATIVE_CRT ?= podman
 
 all: docker-build
 
@@ -23,10 +24,10 @@ help: ## Display this help.
 ##@ Build
 
 docker-build: ## Build docker image with the manager.
-	mvn package -Dquarkus.container-image.build=true -Dquarkus.container-image.image=${IMG}
+	mvn package -Dquarkus.container-image.build=true -Dquarkus.native.container-runtime=$(NATIVE_CRT) -Dquarkus.container-image.image=${IMG}
 
 docker-push: ## Push docker image with the manager.
-	mvn package -Dquarkus.container-image.push=true -Dquarkus.container-image.image=${IMG}
+	mvn package -Dquarkus.container-image.push=true -Dquarkus.native.container-runtime=$(NATIVE_CRT) -Dquarkus.container-image.image=${IMG}
 
 ##@ Deployment
 

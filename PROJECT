@@ -2,4 +2,12 @@ domain: example.com
 layout:
 - quarkus.javaoperatorsdk.io/v1-alpha
 projectName: helloworld-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: example.com
+  group: apps
+  kind: HelloWorldApp
+  version: v1alpha1
 version: "3"
