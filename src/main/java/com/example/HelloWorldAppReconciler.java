@@ -5,20 +5,21 @@ import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.Reconciler;
 import io.javaoperatorsdk.operator.api.reconciler.UpdateControl;
 
-public class HelloWorldAppReconciler implements Reconciler<HelloWorldApp> { 
-  private final KubernetesClient client;
+public class HelloWorldAppReconciler implements Reconciler<HelloWorldApp> {
+    private final KubernetesClient client;
 
-  public HelloWorldAppReconciler(KubernetesClient client) {
-    this.client = client;
-  }
+    public HelloWorldAppReconciler(KubernetesClient client) {
+        this.client = client;
+    }
 
-  // TODO Fill in the rest of the reconciler
+    // TODO Fill in the rest of the reconciler
 
-  @Override
-  public UpdateControl<HelloWorldApp> reconcile(HelloWorldApp resource, Context context) {
-    // TODO: fill in logic
+    @Override
+    public UpdateControl<HelloWorldApp> reconcile(HelloWorldApp resource, Context context) {
 
-    return UpdateControl.noUpdate();
-  }
+
+
+        return UpdateControl.noUpdate();
+    }
 }
 
