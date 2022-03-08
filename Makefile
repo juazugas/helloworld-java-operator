@@ -3,7 +3,9 @@
 IMG ?= controller:latest
 NATIVE_CRT ?= podman
 
-all: docker-build
+KUBECTL := minikube kubectl --
+
+all: container-build
 
 ##@ General
 
@@ -23,22 +25,22 @@ help: ## Display this help.
 
 ##@ Build
 
-docker-build: ## Build docker image with the manager.
+container-build: ## Build docker image with the manager.
 	mvn package -Dquarkus.container-image.build=true -Dquarkus.native.container-runtime=$(NATIVE_CRT) -Dquarkus.container-image.image=${IMG}
 
-docker-push: ## Push docker image with the manager.
+container-push: ## Push docker image with the manager.
 	mvn package -Dquarkus.container-image.push=true -Dquarkus.native.container-runtime=$(NATIVE_CRT) -Dquarkus.container-image.image=${IMG}
 
 ##@ Deployment
 
 install: ## Install CRDs into the K8s cluster specified in ~/.kube/config.
-	@$(foreach file, $(wildcard target/kubernetes/*-v1.yml), kubectl apply -f $(file);)
+	@$(foreach file, $(wildcard target/kubernetes/*-v1.yml), $(KUBECTL) apply -f $(file);)
 
 uninstall: ## Uninstall CRDs from the K8s cluster specified in ~/.kube/config.
-	@$(foreach file, $(wildcard target/kubernetes/*-v1.yml), kubectl delete -f $(file);)
+	@$(foreach file, $(wildcard target/kubernetes/*-v1.yml), $(KUBECTL) delete -f $(file);)
 
 deploy: ## Deploy controller to the K8s cluster specified in ~/.kube/config.
-	kubectl apply -f target/kubernetes/kubernetes.yml
+	$(KUBECTL) apply -f target/kubernetes/kubernetes.yml
 
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
-	kubectl delete -f target/kubernetes/kubernetes.yml
+	$(KUBECTL) delete -f target/kubernetes/kubernetes.yml

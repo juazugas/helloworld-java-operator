@@ -40,3 +40,27 @@ add to the Makefile goals that build the native image :
 ```sh
 ➜ operator-sdk create api --plugins quarkus --group apps --version v1alpha1 --kind HelloWorldApp
 ```
+
+## Generating Custom Resource and CRD
+
+```sh
+➜ mvn clean install
+..
+[INFO] [io.quarkiverse.operatorsdk.deployment.OperatorSDKProcessor] Processed 'com.example.HelloWorldAppReconciler' reconciler named 'helloworldappreconciler' for 'helloworldapps.apps.example.com' resource (version 'apps.example.com/v1alpha1')
+[INFO] Generating 'helloworldapps.apps.example.com' version 'v1alpha1' with com.example.HelloWorldApp (spec: com.example.HelloWorldAppSpec / status com.example.HelloWorldAppStatus)...
+[INFO] [io.quarkiverse.operatorsdk.deployment.OperatorSDKProcessor] Generated helloworldapps.apps.example.com CRD:
+[INFO] [io.quarkiverse.operatorsdk.deployment.OperatorSDKProcessor]   - v1 -> /home/jzuriaga/sandbox/operator.sdk/jello-operator/target/kubernetes/helloworldapps.apps.example.com-v1.yml
+...
+➜ find target/kubernetes
+target/kubernetes
+target/kubernetes/helloworldapps.apps.example.com-v1.yml
+target/kubernetes/kubernetes.yml
+target/kubernetes/kubernetes.json
+```
+
+Apply the resource
+
+```sh
+➜ make install
+
+```
