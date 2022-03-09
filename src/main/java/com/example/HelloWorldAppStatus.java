@@ -1,5 +1,6 @@
 package com.example;
 
+import java.util.ArrayList;
 import java.util.List;
 import io.fabric8.kubernetes.api.model.Condition;
 
@@ -42,6 +43,13 @@ public class HelloWorldAppStatus {
 
     public void setConditions(List<Condition> conditions) {
         this.conditions = conditions;
+    }
+
+    public void addCondition(Condition condition) {
+        if (null==this.conditions) {
+            this.conditions = new ArrayList<>();
+        }
+        conditions.add(condition);
     }
 
 }

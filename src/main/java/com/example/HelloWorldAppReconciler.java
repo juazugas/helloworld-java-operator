@@ -1,12 +1,13 @@
 package com.example;
 
 import static io.javaoperatorsdk.operator.api.reconciler.Constants.WATCH_CURRENT_NAMESPACE;
-
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.fabric8.kubernetes.api.model.ConditionBuilder;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
@@ -19,6 +20,7 @@ import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
 import io.javaoperatorsdk.operator.api.reconciler.DeleteControl;
 import io.javaoperatorsdk.operator.api.reconciler.Reconciler;
 import io.javaoperatorsdk.operator.api.reconciler.UpdateControl;
+import io.javaoperatorsdk.operator.processing.KubernetesResourceUtils;
 
 @ControllerConfiguration(namespaces = WATCH_CURRENT_NAMESPACE)
 public class HelloWorldAppReconciler implements Reconciler<HelloWorldApp> {
@@ -36,6 +38,9 @@ public class HelloWorldAppReconciler implements Reconciler<HelloWorldApp> {
         LOG.info("reconciling ..."+resource);
 
         var result = reconcileConfigMap(resource);
+        if (result) {
+            return UpdateControl.updateResourceAndStatus(resource);
+        }
 
         return UpdateControl.noUpdate();
     }
@@ -67,10 +72,20 @@ public class HelloWorldAppReconciler implements Reconciler<HelloWorldApp> {
 
         if (configmapFound==null) {
             ConfigMap configmap = newConfigMapForCR(resource);
+            String configmapName = KubernetesResourceUtils.getName(resource);
             LOG.info("Creating a new ConfigMap ",
                 "ConfigMap.Namespace", configmap.getMetadata().getNamespace(),
                 "ConfigMap.Name", configmap.getMetadata().getName());
             client.configMaps().create(configmap);
+            if (null==resource.getStatus()) {
+                resource.setStatus(new HelloWorldAppStatus());
+            }
+            resource.getStatus().addCondition(new ConditionBuilder()
+                    .withLastTransitionTime(Instant.now().toString())
+                    .withMessage("configmap "+ configmapName +" created")
+                    .withReason("it didn't exist")
+                    .build()
+                );
             return true;
         } else {
             LOG.info("ConfigMap already exists",
