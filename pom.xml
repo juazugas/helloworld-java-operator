@@ -17,6 +17,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus-sdk.version>3.0.4</quarkus-sdk.version>
     <quarkus.version>2.7.3.Final</quarkus.version>
+    <commons-lang3.version>3.12.0</commons-lang3.version>
   </properties>
 
   <dependencyManagement>
@@ -43,6 +44,11 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
       <version>${quarkus.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>${commons-lang3.version}</version>
     </dependency>
   </dependencies>
 

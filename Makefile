@@ -26,10 +26,10 @@ help: ## Display this help.
 ##@ Build
 
 container-build: ## Build docker image with the manager.
-	mvn package -Dquarkus.container-image.build=true -Dquarkus.native.container-runtime=$(NATIVE_CRT) -Dquarkus.container-image.image=${IMG}
+	mvn package -Dquarkus.docker.executable-name=$(NATIVE_CRT) -Dquarkus.native.container-runtime=$(NATIVE_CRT) -Dquarkus.native.container-build=true -Dquarkus.container-image.build=true -Dquarkus.container-image.image=${IMG}
 
 container-push: ## Push docker image with the manager.
-	mvn package -Dquarkus.container-image.push=true -Dquarkus.native.container-runtime=$(NATIVE_CRT) -Dquarkus.container-image.image=${IMG}
+	mvn package -Dquarkus.docker.executable-name=$(NATIVE_CRT) -Dquarkus.container-image.push=true -Dquarkus.native.container-runtime=$(NATIVE_CRT) -Dquarkus.container-image.image=${IMG}
 
 ##@ Deployment
 

@@ -13,3 +13,17 @@ target
 *.swp
 *.swo
 *~
+
+##
+.project
+.classpath
+.settings/
+bin/
+
+**/.project
+**/.classpath
+**/.settings/
+**/bin/
+
+.vscode
+**/.vscode
