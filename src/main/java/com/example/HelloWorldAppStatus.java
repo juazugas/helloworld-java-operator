@@ -6,6 +6,11 @@ import io.fabric8.kubernetes.api.model.Condition;
 
 public class HelloWorldAppStatus {
 
+    public enum State {
+        CONFIGMAP_CREATED,
+        CONFIGMAP_UPDATED;
+    }
+
     /**
      * List of pods of the application.
      */

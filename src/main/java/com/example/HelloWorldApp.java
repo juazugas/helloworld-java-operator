@@ -7,5 +7,13 @@ import io.fabric8.kubernetes.model.annotation.Version;
 
 @Version("v1alpha1")
 @Group("apps.example.com")
-public class HelloWorldApp extends CustomResource<HelloWorldAppSpec, HelloWorldAppStatus> implements Namespaced {}
+public class HelloWorldApp extends CustomResource<HelloWorldAppSpec, HelloWorldAppStatus> implements Namespaced {
+
+    public HelloWorldAppStatus status() {
+        if (null==getStatus()) {
+            setStatus(new HelloWorldAppStatus());
+        }
+        return getStatus();
+    }
+}
 

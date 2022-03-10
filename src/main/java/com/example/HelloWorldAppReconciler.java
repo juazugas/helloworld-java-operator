@@ -4,6 +4,7 @@ import static io.javaoperatorsdk.operator.api.reconciler.Constants.WATCH_CURRENT
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import com.example.HelloWorldAppStatus.State;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,6 @@ import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.OwnerReference;
 import io.fabric8.kubernetes.api.model.OwnerReferenceBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.javaoperatorsdk.operator.ReconcilerUtils;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
 import io.javaoperatorsdk.operator.api.reconciler.DeleteControl;
@@ -39,6 +39,7 @@ public class HelloWorldAppReconciler implements Reconciler<HelloWorldApp> {
 
         var result = reconcileConfigMap(resource);
         if (result) {
+            LOG.info("Updating resource "+resource);
             return UpdateControl.updateResourceAndStatus(resource);
         }
 
@@ -63,7 +64,7 @@ public class HelloWorldAppReconciler implements Reconciler<HelloWorldApp> {
      * @return
      *         if the result was successful
      */
-    private boolean reconcileConfigMap(HelloWorldApp resource) {
+    private boolean reconcileConfigMap(final HelloWorldApp resource) {
         ConfigMap configmapFound = client
             .configMaps()
             .inNamespace(resource.getMetadata().getNamespace())
@@ -77,15 +78,7 @@ public class HelloWorldAppReconciler implements Reconciler<HelloWorldApp> {
                 "ConfigMap.Namespace", configmap.getMetadata().getNamespace(),
                 "ConfigMap.Name", configmap.getMetadata().getName());
             client.configMaps().create(configmap);
-            if (null==resource.getStatus()) {
-                resource.setStatus(new HelloWorldAppStatus());
-            }
-            resource.getStatus().addCondition(new ConditionBuilder()
-                    .withLastTransitionTime(Instant.now().toString())
-                    .withMessage("configmap "+ configmapName +" created")
-                    .withReason("it didn't exist")
-                    .build()
-                );
+            addStatusCondition(resource, "configmap "+ configmapName +" created", "cm didn't exists", State.CONFIGMAP_CREATED);
             return true;
         } else {
             LOG.info("ConfigMap already exists",
@@ -102,10 +95,24 @@ public class HelloWorldAppReconciler implements Reconciler<HelloWorldApp> {
             configmapFound.getData().put("foo", resource.getSpec().getFoo());
             // Update the message
             client.configMaps().createOrReplace(configmapFound);
+            addStatusCondition(resource,
+                    "configmap "+ configmapFound.getMetadata().getName() +" updated",
+                    "Message didn't match",
+                    State.CONFIGMAP_UPDATED);
             return true;
         }
 
         return false;
+    }
+
+    private void addStatusCondition(final HelloWorldApp resource, String message, String reason, State state) {
+        resource.status().addCondition(new ConditionBuilder()
+                .withLastTransitionTime(Instant.now().toString())
+                .withMessage(message)
+                .withReason(reason)
+                .withType(state.name())
+                .build());
+        LOG.debug("Updating status " + resource);
     }
 
     private Map<String, String> labelsForHelloWorldApp(HelloWorldApp resource) {
@@ -148,4 +155,3 @@ public class HelloWorldAppReconciler implements Reconciler<HelloWorldApp> {
     }
 
 }
-
