@@ -18,6 +18,7 @@ import io.javaoperatorsdk.operator.processing.KubernetesResourceUtils;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.kubernetes.client.KubernetesTestServer;
 import io.quarkus.test.kubernetes.client.WithKubernetesTestServer;
+import okhttp3.mockwebserver.RecordedRequest;
 
 @WithKubernetesTestServer
 @QuarkusTest
@@ -50,6 +51,7 @@ class HelloWorldAppReconcilerTest {
         });
 
         mockServer.getClient().resources(HelloWorldApp.class).delete(cr);
+        mockServer.getClient().resources(ConfigMap.class).delete(fetchConfigMap(cr));
     }
 
     @Test
@@ -79,7 +81,28 @@ class HelloWorldAppReconcilerTest {
             // assertNull(fetchConfigMap(cr));
             assertNull(fetchHelloWorldAppCR(cr));
         });
+        mockServer.getClient().resources(ConfigMap.class).delete(fetchConfigMap(cr));
+    }
 
+    @Test
+    void updateErrorStatus() throws InterruptedException {
+
+        mockServer.getKubernetesMockServer().expect().post().withPath("/api/v1/namespaces/test/configmaps").andReply(403, (r)-> "forbidden").always();
+
+        final HelloWorldApp cr = createDefaultCR();
+        mockServer.getClient().resources(HelloWorldApp.class).create(cr);
+
+        RecordedRequest lastRequest = mockServer.getKubernetesMockServer().getLastRequest();
+        await().atMost(2, MINUTES)
+            .pollInterval(1, SECONDS)
+            .untilAsserted(() -> {
+                 HelloWorldApp updatedCR = fetchHelloWorldAppCR(cr);
+                 assertNull(fetchConfigMap(cr));
+                 assertThat(updatedCR.getStatus(), is(notNullValue()));
+                 assertThat(updatedCR.getStatus().getConditions(), hasSize(1));
+            });
+
+        mockServer.getClient().resources(HelloWorldApp.class).delete(cr);
     }
 
     private HelloWorldApp createDefaultCR() {

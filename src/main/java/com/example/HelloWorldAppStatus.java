@@ -8,7 +8,8 @@ public class HelloWorldAppStatus {
 
     public enum State {
         CONFIGMAP_CREATED,
-        CONFIGMAP_UPDATED;
+        CONFIGMAP_UPDATED,
+        ERROR_PROCESSING;
     }
 
     /**

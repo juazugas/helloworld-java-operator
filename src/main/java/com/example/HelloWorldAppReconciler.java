@@ -3,7 +3,9 @@ package com.example;
 import static io.javaoperatorsdk.operator.api.reconciler.Constants.WATCH_CURRENT_NAMESPACE;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import com.example.HelloWorldAppStatus.State;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -18,12 +20,15 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
 import io.javaoperatorsdk.operator.api.reconciler.DeleteControl;
+import io.javaoperatorsdk.operator.api.reconciler.ErrorStatusHandler;
 import io.javaoperatorsdk.operator.api.reconciler.Reconciler;
+import io.javaoperatorsdk.operator.api.reconciler.RetryInfo;
 import io.javaoperatorsdk.operator.api.reconciler.UpdateControl;
 import io.javaoperatorsdk.operator.processing.KubernetesResourceUtils;
 
 @ControllerConfiguration(namespaces = WATCH_CURRENT_NAMESPACE)
-public class HelloWorldAppReconciler implements Reconciler<HelloWorldApp> {
+public class HelloWorldAppReconciler
+        implements Reconciler<HelloWorldApp>, ErrorStatusHandler<HelloWorldApp> {
 
     private static final Logger LOG = LoggerFactory.getLogger(HelloWorldAppReconciler.class);
 
@@ -31,6 +36,13 @@ public class HelloWorldAppReconciler implements Reconciler<HelloWorldApp> {
 
     public HelloWorldAppReconciler(KubernetesClient client) {
         this.client = client;
+    }
+
+    @Override
+    public Optional<HelloWorldApp> updateErrorStatus(HelloWorldApp resource, RetryInfo retryInfo,
+            RuntimeException e) {
+        addStatusCondition(resource, "Error: " + e.getMessage(), "", State.ERROR_PROCESSING);
+        return Optional.of(resource);
     }
 
     @Override
