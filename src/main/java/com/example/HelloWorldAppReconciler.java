@@ -25,7 +25,12 @@ import io.javaoperatorsdk.operator.api.reconciler.Reconciler;
 import io.javaoperatorsdk.operator.api.reconciler.RetryInfo;
 import io.javaoperatorsdk.operator.api.reconciler.UpdateControl;
 import io.javaoperatorsdk.operator.processing.KubernetesResourceUtils;
+import io.quarkiverse.operatorsdk.csv.runtime.CSVMetadata;
 
+@CSVMetadata(permissionRules = {
+    @CSVMetadata.PermissionRule(apiGroups = "apps.example.com", resources = "HelloWorldApp"),
+    @CSVMetadata.PermissionRule(apiGroups = "core", resources = "configmaps"),
+})
 @ControllerConfiguration(namespaces = WATCH_CURRENT_NAMESPACE)
 public class HelloWorldAppReconciler
         implements Reconciler<HelloWorldApp>, ErrorStatusHandler<HelloWorldApp> {

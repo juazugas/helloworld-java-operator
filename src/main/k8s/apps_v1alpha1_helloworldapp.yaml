@@ -1,0 +1,9 @@
+apiVersion: apps.example.com/v1alpha1
+kind: HelloWorldApp
+metadata:
+  name: helloworldapp-sample
+spec:
+  replicas: 3
+  foo: test
+  message: "hello world"
+  appVersion: v.0.0.1beta1
