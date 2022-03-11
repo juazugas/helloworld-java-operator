@@ -17,4 +17,4 @@ LABEL operators.operatorframework.io.test.config.v1=tests/scorecard/
 # Copy files to locations specified by labels.
 COPY src/main/k8s/bundle/manifests /manifests/
 COPY src/main/k8s/bundle/metadata /metadata/
-COPY src/main/k8s/bundle/tests/scorecard /tests/scorecard/
+# COPY src/main/k8s/bundle/tests/scorecard /tests/scorecard/

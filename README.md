@@ -81,7 +81,7 @@ Build with the CSV generation option:
 
 Move to the destination directory :
 
-```sh 
+```sh
 ➜ mv target/manifests src/main/k8s/bundle
 ➜ mv target/kubernetes/*-v1.yml src/main/k8s/bundle/manifests
 ```
@@ -91,14 +91,59 @@ Generate the OLM bundle
 ```sh
 ➜ operator-sdk generate bundle --overwrite --version ${VERSION:-0.0.1} --metadata --output-dir ./src/main/k8s/bundle
 Generating bundle metadata
-INFO[0000] Creating bundle.Dockerfile                   
-INFO[0000] Creating src/main/k8s/bundle/metadata/annotations.yaml 
-INFO[0000] Bundle metadata generated suceessfully       
+INFO[0000] Creating bundle.Dockerfile
+INFO[0000] Creating src/main/k8s/bundle/metadata/annotations.yaml
+INFO[0000] Bundle metadata generated suceessfully
 ```
 
-Build the bundle image : 
+Build and publish the bundle image :
 
 ```sh
 ➜ export BUNDLE_IMG=quay.io/$USERNAME/helloworld-java-operator-bundle:v${VERSION}
-➜ podman build -f bundle.Dockerfile -t ${BUNDLE_IMG} src/main/k8s/bundle
+➜ podman build -f bundle.Dockerfile -t ${BUNDLE_IMG} .
+➜ podman push ${BUNDLE_IMG}
+```
+
+Test run the bundle :
+
+```sh
+➜ operator-sdk run bundle --timeout=5m ${BUNDLE_IMG} --install-mode OwnNamespace
+INFO[0008] Successfully created registry pod: quay-io-jzuriaga-helloworld-java-operator-bundle-v0-0-1
+INFO[0008] Created CatalogSource: helloworld-operator-catalog
+INFO[0008] OperatorGroup "operator-sdk-og" created
+INFO[0008] Created Subscription: helloworldappreconciler-v0-0-1-sub
+INFO[0014] Approved InstallPlan install-jdhtt for the Subscription: helloworldappreconciler-v0-0-1-sub
+INFO[0014] Waiting for ClusterServiceVersion "joperators-test/helloworldappreconciler.v0.0.1" to reach 'Succeeded' phase
+INFO[0014]   Waiting for ClusterServiceVersion "joperators-test/helloworldappreconciler.v0.0.1" to appear
+INFO[0027]   Found ClusterServiceVersion "joperators-test/helloworldappreconciler.v0.0.1" phase: Pending
+INFO[0029]   Found ClusterServiceVersion "joperators-test/helloworldappreconciler.v0.0.1" phase: Installing
+INFO[0038]   Found ClusterServiceVersion "joperators-test/helloworldappreconciler.v0.0.1" phase: Succeeded
+INFO[0038] OLM has successfully installed "helloworldappreconciler.v0.0.1"
+```
+
+Check that the operator is running :
+
+```sh
+➜ kubectl get all
+NAME                                                                  READY   STATUS      RESTARTS   AGE
+pod/helloworld-operator-operator-6749c9d65c-8bktl                     1/1     Running     0          5m41s
+pod/quay-io-jzuriaga-helloworld-java-operator-bundle-v0-0-1           1/1     Running     0          6m4s
+
+NAME                                           READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/helloworld-operator-operator   1/1     1            1           5m41s
+
+NAME                                                      DESIRED   CURRENT   READY   AGE
+replicaset.apps/helloworld-operator-operator-6749c9d65c   1         1         1       5m41s
+```
+
+Cleanup after testing :
+
+```sh
+➜ operator-sdk cleanup helloworld-operator
+INFO[0000] subscription "helloworldappreconciler-v0-0-1-sub" deleted
+INFO[0000] customresourcedefinition "helloworldapps.apps.example.com" deleted
+INFO[0005] clusterserviceversion "helloworldappreconciler.v0.0.1" deleted
+INFO[0005] catalogsource "helloworld-operator-catalog" deleted
+INFO[0005] operatorgroup "operator-sdk-og" deleted
+INFO[0005] Operator "helloworld-operator" uninstalled
 ```

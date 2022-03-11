@@ -1,14 +1,20 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
-  name: helloworldappreconciler
+  name: helloworldappreconciler.v0.0.1
 spec:
+  version: 0.0.1
+  maintainers:
+    - name: Juan Zuriaga
+      email: jzuriaga@redhat.com
+  maturity: alpha
   customresourcedefinitions:
     owned:
     - kind: HelloWorldApp
       name: helloworldapps.apps.example.com
       version: v1alpha1
-  displayName: helloworldappreconciler
+  displayName: Hello World App Java operator
+  capabilities: Seamless Upgrades
   install:
     spec:
       clusterPermissions:
@@ -91,7 +97,7 @@ spec:
           - patch
           - update
         - apiGroups:
-          - core
+          - ""
           resources:
           - configmaps
           verbs:
@@ -122,3 +128,5 @@ spec:
   installModes:
   - supported: true
     type: AllNamespaces
+  - supported: true
+    type: OwnNamespace
