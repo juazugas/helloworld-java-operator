@@ -1,0 +1,12 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: helloworld-operator-catalog
+spec:
+  displayName: HelloWorldApp Catalog
+  image: quay.io/jzuriaga/helloworld-java-operator-catalog:v0.0.1
+  publisher: Juan Zuriaga
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 60m

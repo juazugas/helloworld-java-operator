@@ -147,3 +147,33 @@ INFO[0005] catalogsource "helloworld-operator-catalog" deleted
 INFO[0005] operatorgroup "operator-sdk-og" deleted
 INFO[0005] Operator "helloworld-operator" uninstalled
 ```
+
+## Generating the catalog
+
+Build the catalog image :
+
+```og image :
+
+```sh
+➜ export CATALOG_IMAGE=quay.io/$USERNAME/helloworld-java-operator-catalog:v${VERSION}
+➜ opm index add --container-tool podman --mode semver --tag $CATALOG_IMAGE --bundles quay.io/jzuriaga/helloworld-java-operator-bundle:v0.0.1
+INFO[0000] building the index                            bundles="[quay.io/jzuriaga/helloworld-java-operator-bundle:v0.0.1]"
+INFO[0000] running /usr/bin/podman pull quay.io/jzuriaga/helloworld-java-operator-bundle:v0.0.1  bundles="[quay.io/jzuriaga/helloworld-java-operator-bundle:v0.0.1]"
+INFO[0002] running podman create                         bundles="[quay.io/jzuriaga/helloworld-java-operator-bundle:v0.0.1]"
+INFO[0002] running podman cp                             bundles="[quay.io/jzuriaga/helloworld-java-operator-bundle:v0.0.1]"
+INFO[0002] running podman rm                             bundles="[quay.io/jzuriaga/helloworld-java-operator-bundle:v0.0.1]"
+INFO[0002] Could not find optional dependencies file     file=bundle_tmp3183370443/metadata load=annotations with=./bundle_tmp3183370443
+INFO[0002] Could not find optional properties file       file=bundle_tmp3183370443/metadata load=annotations with=./bundle_tmp3183370443
+INFO[0002] Could not find optional dependencies file     file=bundle_tmp3183370443/metadata load=annotations with=./bundle_tmp3183370443
+INFO[0002] Could not find optional properties file       file=bundle_tmp3183370443/metadata load=annotations with=./bundle_tmp3183370443
+INFO[0002] Generating dockerfile                         bundles="[quay.io/jzuriaga/helloworld-java-operator-bundle:v0.0.1]"
+INFO[0002] writing dockerfile: ./index.Dockerfile634357330  bundles="[quay.io/jzuriaga/helloworld-java-operator-bundle:v0.0.1]"
+INFO[0002] running podman build                          bundles="[quay.io/jzuriaga/helloworld-java-operator-bundle:v0.0.1]"
+INFO[0002] [podman build --format docker -f ./index.Dockerfile634357330 -t quay.io/jzuriaga/helloworld-java-operator-catalog:v0.0.1 .]  bundles="[quay.io/jzuriaga/helloworld-java-operator-bundle:v0.0.1]"
+```
+
+Publish the catalog image :
+
+```sh
+➜ podman push ${CATALOG_IMAGE}
+```
