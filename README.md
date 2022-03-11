@@ -64,3 +64,41 @@ Apply the resource
 ➜ make install
 
 ```
+
+## Generating the OLM bundle
+
+Build with the CSV generation option:
+
+```sh
+➜ mvn package -Pnative -Dquarkus.operator-sdk.generate-csv=true \
+          -Dquarkus.docker.executable-name=podman -Dquarkus.container-image.build=true \
+          -Dquarkus.native.container-runtime=podman \
+          -Dquarkus.container-image.image=quay.io/$USERNAME/helloworld-java-operator:v0.0.1beta1-java
+...
+[INFO] [io.quarkiverse.operatorsdk.csv.deployment.ManifestsProcessor] Generating CSV for helloworldappreconciler controller -> /home/jzuriaga/sandbox/operator.sdk/jello-operator/target/manifests/helloworldappreconciler.csv.yml
+...
+```
+
+Move to the destination directory :
+
+```sh 
+➜ mv target/manifests src/main/k8s/bundle
+➜ mv target/kubernetes/*-v1.yml src/main/k8s/bundle/manifests
+```
+
+Generate the OLM bundle
+
+```sh
+➜ operator-sdk generate bundle --overwrite --version ${VERSION:-0.0.1} --metadata --output-dir ./src/main/k8s/bundle
+Generating bundle metadata
+INFO[0000] Creating bundle.Dockerfile                   
+INFO[0000] Creating src/main/k8s/bundle/metadata/annotations.yaml 
+INFO[0000] Bundle metadata generated suceessfully       
+```
+
+Build the bundle image : 
+
+```sh
+➜ export BUNDLE_IMG=quay.io/$USERNAME/helloworld-java-operator-bundle:v${VERSION}
+➜ podman build -f bundle.Dockerfile -t ${BUNDLE_IMG} src/main/k8s/bundle
+```
